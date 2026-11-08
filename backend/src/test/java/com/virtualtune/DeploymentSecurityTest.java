@@ -9,8 +9,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -20,6 +22,45 @@ public class DeploymentSecurityTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Test
+    @DisplayName("Health: GET / returns 200 UP")
+    void testRootHealthGet() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.service").value("Virtual Tune Backend"));
+    }
+
+    @Test
+    @DisplayName("Health: GET /api/health returns 200 UP")
+    void testApiHealthGet() throws Exception {
+        mockMvc.perform(get("/api/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.service").value("Virtual Tune API"));
+    }
+
+    @Test
+    @DisplayName("Health: POST / is rejected and does not execute GET handler (405 Method Not Allowed)")
+    void testRootHealthPostRejected() throws Exception {
+        mockMvc.perform(post("/"))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @DisplayName("Health: POST /api/health is rejected without JWT (401 Unauthorized)")
+    void testApiHealthPostRejected() throws Exception {
+        mockMvc.perform(post("/api/health"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("Security: Protected API without token returns 401 Unauthorized")
+    void testProtectedApiRequiresToken() throws Exception {
+        mockMvc.perform(get("/api/builds/my"))
+                .andExpect(status().isUnauthorized());
+    }
 
     @Test
     @DisplayName("Production: /h2-console is blocked and not publicly accessible")

@@ -37,5 +37,5 @@ ENV PORT=10000
 ENV SPRING_PROFILES_ACTIVE=prod
 EXPOSE 10000
 
-# Container-aware memory allocation and dynamic port resolution
-ENTRYPOINT ["sh", "-c", "java -XX:MaxRAMPercentage=75.0 -Dserver.port=${PORT:-10000} -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} -Djava.security.egd=file:/dev/./urandom -jar app.jar"]
+# Container-aware memory allocation and low-overhead tuning for Render Free Tier (512MB RAM, 0.15 vCPU)
+ENTRYPOINT ["sh", "-c", "java -Xms64m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=48m -XX:+UseSerialGC -XX:ActiveProcessorCount=1 -XX:CICompilerCount=2 -Dserver.port=${PORT:-10000} -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} -Djava.security.egd=file:/dev/./urandom -jar app.jar"]

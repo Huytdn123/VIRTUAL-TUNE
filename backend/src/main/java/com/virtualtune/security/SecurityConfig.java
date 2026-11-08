@@ -123,6 +123,7 @@ public class SecurityConfig {
                         }))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/api/health").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/parts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/cars/**").permitAll()
