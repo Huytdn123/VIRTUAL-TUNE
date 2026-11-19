@@ -1,8 +1,0 @@
-target/
-.git/
-.gitignore
-*.md
-.idea/
-*.iml
-.mvn/wrapper/maven-wrapper.jar
-
